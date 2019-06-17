@@ -108,8 +108,8 @@ def main():
             print("=> no model found at '{}'".format(opt.pretrained))
     print(srnet)
     
-    wavelet_dec = WaveletTransform(scale=opt.upscale, dec=True)
-    wavelet_rec = WaveletTransform(scale=opt.upscale, dec=False)          
+    wavelet_dec = WaveletTransform(scale=opt.upscale, dec=True)   # wavelet decomposition
+    wavelet_rec = WaveletTransform(scale=opt.upscale, dec=False)  # wavelet recomposition
      
     criterion_m = nn.MSELoss(size_average=True)
     
@@ -149,7 +149,7 @@ def main():
     srnet.train()
     #----------------Train by epochs--------------------------
     for epoch in range(opt.start_epoch, opt.nEpochs + 1):  
-        if epoch%opt.save_iter == 0:
+        if epoch % opt.save_iter == 0:
             save_checkpoint(srnet, epoch, 0, 'sr_')
         
         for iteration, batch in enumerate(train_data_loader, 0):

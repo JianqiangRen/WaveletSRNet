@@ -166,7 +166,7 @@ def main():
                     wavelets = forward_parallel(srnet, input, opt.ngpu)                    
                     prediction = wavelet_rec(wavelets)
                     mse = criterion_m(prediction, target)
-                    psnr = 10 * log10(1 / (mse.data[0]) )
+                    psnr = 10 * log10(1 / (mse.item()) )
                     avg_psnr += psnr
                                                     
                     save_images(prediction, "Epoch_{:03d}_Iter_{:06d}_{:02d}_o.jpg".format(epoch, iteration, titer), 

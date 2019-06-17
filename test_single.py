@@ -10,11 +10,12 @@ import torch
 import glob
 import os
 import cv2
+from PIL import Image
 import torchvision.transforms as transforms
 import numpy as np
 import torchvision.transforms.functional as F
 from networks import *
-
+from dataset import *
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
@@ -25,15 +26,12 @@ if __name__ =="__main__":
     opt = parser.parse_args()
     
     wavelet_rec = WaveletTransform(scale=opt.upscale, dec=False)  # wavelet recomposition
-    
-    
-    img = cv2.imread(opt.img)
-    
+ 
     srnet = NetSR(opt.upscale, num_layers_res=opt.num_layers_res)
-    srnet.eval()
+
     
     print("=> loading model '{}'".format(opt.model))
-    weights = torch.load(opt.model,map_location='cpu' )
+    weights = torch.load(opt.model,map_location='cpu')
     pretrained_dict = weights['model'].state_dict()
     model_dict = srnet.state_dict()
     # print(model_dict)
@@ -41,18 +39,31 @@ if __name__ =="__main__":
     model_dict.update(pretrained_dict)
     # 3. load the new state dict
     srnet.load_state_dict(model_dict)
-    print("=>model loaded'{}'".format(opt.model))
-    
+    print("=>model loaded")
+    print(srnet)
+ 
     input_transform = transforms.ToTensor()
-    
-    a = F.to_pil_image(img)
-    a=input_transform(a)
-    a = torch.unsqueeze(a, 0)
-    wavelets = srnet(a)
-    
+
+    img = Image.open(opt.img)
+    img_lr = img.resize((int(img.size[0] / 2), int(img.size[1] / 2)), Image.BICUBIC)
+
+    img_bic_hr = img_lr.resize((int(img_lr.size[0]*8), int(img_lr.size[1]*8)), Image.BICUBIC)
+
+    img_lr = input_transform(img_lr)
+    img_lr = torch.unsqueeze(img_lr, 0)
+    print(img_lr.shape)
+ 
+    srnet.eval()
+    wavelets = srnet(img_lr)
+ 
     prediction = wavelet_rec(wavelets)
-    
+ 
     img = prediction.cpu()
     im = img.data.numpy().astype(np.float32)
     
     im = im.transpose(0, 2, 3, 1)
+    print(im.shape)
+    im = im[0] * 255
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    img_bic_hr.save("res_bicubic.jpg")
+    cv2.imwrite("res_wsrnet.jpg", im)

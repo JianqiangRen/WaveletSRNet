@@ -27,7 +27,7 @@ parser.add_argument('--num_layers_res', type=int, help='number of the layers in 
 parser.add_argument('--nrow', type=int, help='number of the rows to save images', default=10)
 parser.add_argument('--trainfiles', default="path/celeba/train.list", type=str, help='the list of training files')
 parser.add_argument('--dataroot', default="path/celeba", type=str, help='path to dataset')
-parser.add_argument('--testfiles', default="path/test.list", type=str, help='the list of training files')
+parser.add_argument('--testfiles', default="path/test.list", type=str, help='the list of testing files')
 parser.add_argument('--testroot', default="path/celeba", type=str, help='path to dataset')
 parser.add_argument('--trainsize', type=int, help='number of training data', default=162770)
 parser.add_argument('--testsize', type=int, help='number of testing data', default=19962)

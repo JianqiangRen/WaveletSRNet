@@ -3,7 +3,7 @@ A pytorch implementation of Paper ["Wavelet-srnet: A wavelet-based cnn for multi
 
 ## Prerequisites
 * Python 2.7
-* PyTorch
+* PyTorch 0.4.1
 
 ## Run
 

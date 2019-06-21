@@ -29,9 +29,10 @@ if __name__ =="__main__":
  
     srnet = NetSR(opt.upscale, num_layers_res=opt.num_layers_res)
 
-    
+    wavelet_rec = wavelet_rec.cuda()
+
     print("=> loading model '{}'".format(opt.model))
-    weights = torch.load(opt.model,map_location='cpu')
+    weights = torch.load(opt.model)
     pretrained_dict = weights['model'].state_dict()
     model_dict = srnet.state_dict()
     # print(model_dict)
@@ -42,11 +43,12 @@ if __name__ =="__main__":
     print("=>model loaded")
     print(srnet)
  
+    srnet = srnet.cuda()      
     input_transform = transforms.ToTensor()
 
     img = Image.open(opt.img)
     img = img.convert("RGB")
-    img_lr = img.resize((int(img.size[0] / 4), int(img.size[1] / 4)), Image.BICUBIC)
+    img_lr = img.resize((int(img.size[0] / 2), int(img.size[1] / 2)), Image.BICUBIC)
     img_lr.save("lr.png")
     img_bic_hr = img_lr.resize((int(img_lr.size[0]*4), int(img_lr.size[1]*4)), Image.BICUBIC)
 
@@ -55,7 +57,7 @@ if __name__ =="__main__":
     print(img_lr.shape)
  
     srnet.eval()
-    wavelets = srnet(img_lr)
+    wavelets = srnet(img_lr.cuda())
  
     prediction = wavelet_rec(wavelets)
  

@@ -45,9 +45,10 @@ if __name__ =="__main__":
     input_transform = transforms.ToTensor()
 
     img = Image.open(opt.img)
-    img_lr = img.resize((int(img.size[0] / 2), int(img.size[1] / 2)), Image.BICUBIC)
-
-    img_bic_hr = img_lr.resize((int(img_lr.size[0]*8), int(img_lr.size[1]*8)), Image.BICUBIC)
+    img = img.convert("RGB")
+    img_lr = img.resize((int(img.size[0] / 4), int(img.size[1] / 4)), Image.BICUBIC)
+    img_lr.save("lr.png")
+    img_bic_hr = img_lr.resize((int(img_lr.size[0]*4), int(img_lr.size[1]*4)), Image.BICUBIC)
 
     img_lr = input_transform(img_lr)
     img_lr = torch.unsqueeze(img_lr, 0)
@@ -65,5 +66,5 @@ if __name__ =="__main__":
     print(im.shape)
     im = im[0] * 255
     im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-    img_bic_hr.save("res_bicubic.jpg")
-    cv2.imwrite("res_wsrnet.jpg", im)
+    img_bic_hr.save("res_bicubic.png")
+    cv2.imwrite("res_wsrnet.png", im)

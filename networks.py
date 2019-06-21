@@ -43,7 +43,8 @@ class WaveletTransform(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
                 f = open(params_path,'rb')
-                dct = pickle.load(f)
+                # dct = pickle.load(f)
+                dct = pickle.load(f, encoding='iso-8859-1')
                 f.close()
                 m.weight.data = torch.from_numpy(dct['rec%d' % ks])
                 m.weight.requires_grad = False  

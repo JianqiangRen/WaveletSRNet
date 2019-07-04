@@ -23,16 +23,21 @@ if __name__ =="__main__":
     parser.add_argument('--num_layers_res', type=int, help='number of the layers in residual block', default=2)
     parser.add_argument('--model', type=str)
     parser.add_argument('--img', type=str)
+    parser.add_argument('--cuda',type=bool, default=False)
     opt = parser.parse_args()
     
     wavelet_rec = WaveletTransform(scale=opt.upscale, dec=False)  # wavelet recomposition
  
     srnet = NetSR(opt.upscale, num_layers_res=opt.num_layers_res)
 
-    wavelet_rec = wavelet_rec.cuda()
+    if opt.cuda:
+        wavelet_rec = wavelet_rec.cuda()
 
     print("=> loading model '{}'".format(opt.model))
-    weights = torch.load(opt.model)
+    if opt.cuda:
+        weights = torch.load(opt.model)
+    else:
+        weights = torch.load(opt.model, map_location='cpu' )
     pretrained_dict = weights['model'].state_dict()
     model_dict = srnet.state_dict()
     # print(model_dict)
@@ -42,8 +47,8 @@ if __name__ =="__main__":
     srnet.load_state_dict(model_dict)
     print("=>model loaded")
     print(srnet)
- 
-    srnet = srnet.cuda()      
+    if opt.cuda:
+        srnet = srnet.cuda()
     input_transform = transforms.ToTensor()
 
     img = Image.open(opt.img)
@@ -57,7 +62,10 @@ if __name__ =="__main__":
     print(img_lr.shape)
  
     srnet.eval()
-    wavelets = srnet(img_lr.cuda())
+    if opt.cuda:
+        wavelets = srnet(img_lr.cuda())
+    else:
+        wavelets = srnet(img_lr)
  
     prediction = wavelet_rec(wavelets)
  
